@@ -1,7 +1,9 @@
 import 'package:chat/pages/home.dart';
 import 'package:chat/pages/login.dart';
+import 'package:chat/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,6 +14,33 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  Future<void> signUp() async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+
+    try {
+      print(emailController.text);
+      print(passwordController.text);
+      await authService.signUp(emailController.text, passwordController.text);
+      // ignore: use_build_context_synchronously
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AuthGate(),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString(),
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +54,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 30),
               child: TextFormField(
+                controller: emailController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter some text';
@@ -44,6 +74,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 bottom: 20,
               ),
               child: TextFormField(
+                controller: passwordController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter some text';
@@ -65,6 +96,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Processing Data')),
                     );
+                    Future.delayed(Duration(seconds: 1), () {
+                      signUp();
+                    });
                   }
                 },
                 style: ButtonStyle(

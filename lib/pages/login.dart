@@ -1,5 +1,7 @@
 import 'package:chat/pages/register.dart';
+import 'package:chat/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,6 +12,26 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  Future<void> signIn() async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+
+    try {
+      print(emailController.text);
+      print(passwordController.text);
+      await authService.signIn(emailController.text, passwordController.text);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString(),
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 30),
               child: TextFormField(
+                controller: emailController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter some text';
@@ -42,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 bottom: 20,
               ),
               child: TextFormField(
+                controller: passwordController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter some text';
@@ -63,6 +87,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Processing Data')),
                     );
+                    Future.delayed(Duration(seconds: 1), () {
+                      signIn();
+                    });
                   }
                 },
                 style: ButtonStyle(
