@@ -144,7 +144,7 @@ class _ChatScreenState extends State<ChatScreen> {
             return const Text('Loading...');
           }
 
-          print(snapshot.data!.docs.length.toString() + "---------");
+          debugPrint("${snapshot.data!.docs.length}---------");
 
           return ListView(
               controller: _scrollController,
